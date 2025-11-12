@@ -12,6 +12,7 @@ const App: React.FC = () => {
     const [barId, setBarId] = useState<string | null>(null);
     const [activationState, setActivationState] = useState<ActivationState>('checking');
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [isDemoMode, setIsDemoMode] = useState(false);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -19,7 +20,13 @@ const App: React.FC = () => {
         const currentView = urlParams.get('view');
 
         if (!currentBarId) {
-            setActivationState('config_error');
+            // Se non c'è un ID bar, avviamo in modalità demo
+            setBarId('demo_bar');
+            setIsDemoMode(true);
+            setActivationState('active');
+            if (currentView === 'manager') {
+                setView('manager');
+            }
             return;
         }
 
@@ -95,35 +102,17 @@ const App: React.FC = () => {
         );
     }
 
-    if (activationState === 'config_error' || activationState === 'service_error') {
-        const errorTitle = activationState === 'config_error' ? 'Errore di Configurazione' : 'Errore di Servizio';
-        const errorText = activationState === 'config_error' 
-            ? "ID del locale non specificato."
-            : "Impossibile verificare lo stato del servizio. Controlla la connessione e riprova.";
-
+    if (activationState === 'service_error') {
         return (
             <div className="min-h-screen bg-stone-100 flex items-center justify-center p-4 font-sans">
                 <div className="max-w-md w-full mx-auto bg-white p-8 rounded-xl shadow-lg text-center border border-stone-200">
                     <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
-                    <h1 className="text-2xl font-bold text-red-700 mt-4 mb-2">{errorTitle}</h1>
+                    <h1 className="text-2xl font-bold text-red-700 mt-4 mb-2">Errore di Servizio</h1>
                     <p className="text-stone-600 text-base">
-                        {errorText}
+                        Impossibile verificare lo stato del servizio. Controlla la connessione e riprova.
                     </p>
-                    {activationState === 'config_error' && (
-                        <>
-                            <p className="text-stone-600 text-base mt-2">
-                                Per funzionare, l'URL deve includere l'identificativo univoco del bar.
-                            </p>
-                            <p className="text-stone-500 text-sm mt-6">
-                                Esempio di link da fornire al barista:
-                            </p>
-                            <code className="block bg-stone-100 text-amber-900 p-2 rounded-md mt-1 text-sm break-all">
-                                https://la-tua-app.com/?bar=nome_del_bar
-                            </code>
-                        </>
-                    )}
                 </div>
             </div>
         );
@@ -133,6 +122,11 @@ const App: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-stone-100 font-sans text-stone-800">
+             {isDemoMode && (
+                <div className="bg-amber-100 text-amber-800 text-center p-2 text-sm font-semibold sticky top-0 z-10 shadow-sm">
+                    Modalità Demo Attiva. I dati vengono salvati solo su questo dispositivo.
+                </div>
+            )}
             <Header onSwitchView={switchView} />
             <main className="p-4 sm:p-6">
                 <div className="max-w-md mx-auto">

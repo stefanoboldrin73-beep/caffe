@@ -33,10 +33,14 @@ export type ActivationStatus = 'active' | 'suspended' | 'not_found' | 'error';
  */
 export const checkBarStatus = async (barId: string): Promise<ActivationStatus> => {
     
-    // Se l'URL non è stato modificato, restituisce un errore per ricordarlo.
+    // Se l'URL non è stato modificato, l'app funziona in modalità "sempre attiva"
+    // per facilitare lo sviluppo e i test.
     if (ACTIVATION_DATABASE_URL.includes('NOME_UTENTE')) {
-        console.error("ERRORE: L'URL del database di attivazione non è stato configurato in services/activationService.ts");
-        return 'error';
+        console.warn(
+            "ATTENZIONE: L'app è in modalità sviluppo. Qualsiasi bar è considerato attivo. " +
+            "Per l'uso in produzione, configura l'URL del database in 'services/activationService.ts'."
+        );
+        return 'active';
     }
 
     try {
