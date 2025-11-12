@@ -1,0 +1,7 @@
+{
+  "name": "Tessera Caffè Virtuale",
+  "description": "Un'app per la raccolta punti caffè virtuale. I clienti mostrano un QR code, il barista lo scansiona per aggiungere punti. Raggiunti 10 caffè, il prossimo è in omaggio.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

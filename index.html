@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tessera Caffè Virtuale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        #qr-reader video {
+            width: 100% !important;
+            height: auto !important;
+            border-radius: 8px;
+        }
+        #qr-reader span {
+            font-size: 14px;
+        }
+        @keyframes pulse-qr {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(146, 64, 14, 0);
+            }
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 0 0 10px rgba(146, 64, 14, 0.2);
+            }
+        }
+        .animate-pulse-qr {
+            animation: pulse-qr 2.5s ease-in-out infinite;
+        }
+        @keyframes tada {
+            from {
+                transform: scale3d(1, 1, 1);
+            }
+            10%, 20% {
+                transform: scale3d(0.9, 0.9, 0.9) rotate3d(0, 0, 1, -3deg);
+            }
+            30%, 50%, 70%, 90% {
+                transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+            }
+            40%, 60%, 80% {
+                transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+            }
+            to {
+                transform: scale3d(1, 1, 1);
+            }
+        }
+        .animate-tada {
+            animation: tada 1s;
+        }
+        @keyframes pop-in {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+            100% { transform: scale(1); }
+        }
+        .animate-pop-in {
+            animation: pop-in 0.5s ease-out;
+        }
+        
+        /* Added for smooth transitions */
+        @keyframes fade-in {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out forwards;
+        }
+
+        @keyframes fade-out {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.98); }
+        }
+        /* Apply to the direct child of the wrapper during exit */
+        .page-exit > * {
+           animation: fade-out 0.3s ease-in forwards;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
+    "qrcode.react": "https://aistudiocdn.com/qrcode.react@^4.2.0",
+    "html5-qrcode": "https://aistudiocdn.com/html5-qrcode@^2.3.8"
+  }
+}
+</script>
+</head>
+<body class="bg-stone-100">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
