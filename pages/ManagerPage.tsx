@@ -4,6 +4,9 @@ import type { User } from '../types';
 import * as storage from '../services/storageService';
 import CoffeeCard from '../components/CoffeeCard';
 import { CoffeeIcon } from '../components/icons/CoffeeIcon';
+import { DownloadIcon } from '../components/icons/DownloadIcon';
+import { UploadIcon } from '../components/icons/UploadIcon';
+
 
 interface ManagerPageProps {
     barId: string;
@@ -23,6 +26,7 @@ const ManagerPage: React.FC<ManagerPageProps> = ({ barId }) => {
     const [animatedCupInfo, setAnimatedCupInfo] = useState<{ userId: string; cupIndex: number } | null>(null);
 
     const scannerRef = useRef<Html5Qrcode | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const readerId = "qr-reader";
 
     const loadScansForDate = useCallback(() => {
@@ -147,6 +151,71 @@ const ManagerPage: React.FC<ManagerPageProps> = ({ barId }) => {
             setTimeout(() => setMessage(null), 2000);
         }
     };
+    
+    const handleExportData = () => {
+        try {
+            const data = storage.exportDataForBar(barId);
+            const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
+                JSON.stringify(data, null, 2)
+            )}`;
+            const link = document.createElement("a");
+            link.href = jsonString;
+            const date = new Date().toISOString().split('T')[0];
+            link.download = `backup-caffe-${barId}-${date}.json`;
+            link.click();
+            setMessage({ text: 'Dati esportati con successo.', type: 'success' });
+            setTimeout(() => setMessage(null), 3000);
+        } catch (error) {
+            setMessage({ text: "Errore durante l'esportazione dei dati.", type: 'error' });
+            setTimeout(() => setMessage(null), 3000);
+        }
+    };
+
+    const handleImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const text = e.target?.result;
+                if (typeof text !== 'string') {
+                    throw new Error("Il file non può essere letto.");
+                }
+                const data = JSON.parse(text);
+
+                const isConfirmed = window.confirm(
+                    "Sei sicuro di voler ripristinare i dati?\n\nTutti i dati attuali per questo locale verranno SOVRASCRITTI.\nQuesta azione è irreversibile."
+                );
+
+                if (isConfirmed) {
+                    const result = storage.importDataForBar(barId, data);
+                    setMessage({ text: result.message, type: result.success ? 'success' : 'error' });
+                    if (result.success) {
+                        // Refresh data on screen
+                        loadAllUsers();
+                        loadScansForDate();
+                    }
+                }
+            } catch (error) {
+                setMessage({ text: 'File non valido o corrotto.', type: 'error' });
+            } finally {
+                // Reset file input so the same file can be selected again
+                if (event.target) {
+                    event.target.value = '';
+                }
+                setTimeout(() => setMessage(null), 4000);
+            }
+        };
+        reader.readAsText(file);
+    };
+
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-lg animate-fade-in space-y-6">
@@ -285,6 +354,38 @@ const ManagerPage: React.FC<ManagerPageProps> = ({ barId }) => {
                         </p>
                     )}
                  </div>
+            </div>
+            
+            {/* Data Management Section */}
+            <div className="space-y-4 pt-6">
+                <h3 className="text-xl font-semibold text-stone-700 border-b pb-2">Gestione Dati</h3>
+                <p className="text-sm text-stone-600">
+                    Salva una copia di sicurezza di tutti i clienti e le scansioni, o ripristina i dati da un file di backup.
+                    Utile per trasferire dati o in caso di pulizia della cache del browser.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                        onClick={handleExportData}
+                        className="flex-1 bg-stone-600 text-white font-bold py-2 px-4 rounded-md hover:bg-stone-700 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <DownloadIcon className="w-5 h-5" />
+                        Esporta Dati
+                    </button>
+                    <button
+                        onClick={handleImportClick}
+                        className="flex-1 bg-sky-700 text-white font-bold py-2 px-4 rounded-md hover:bg-sky-800 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <UploadIcon className="w-5 h-5" />
+                        Importa Dati
+                    </button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        className="hidden"
+                        accept="application/json"
+                    />
+                </div>
             </div>
         </div>
     );

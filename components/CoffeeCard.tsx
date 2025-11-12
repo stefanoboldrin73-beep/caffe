@@ -11,7 +11,8 @@ const CoffeeCard: React.FC<CoffeeCardProps> = ({ count, animatedIndex }) => {
     const totalCups = 10;
     const [playTada, setPlayTada] = React.useState(false);
     
-    const prevCountRef = React.useRef<number>();
+    // Fix: Initialize useRef with an argument as it is required when a generic type is provided.
+    const prevCountRef = React.useRef<number | undefined>(undefined);
     React.useEffect(() => {
         const prevCount = prevCountRef.current;
         if (prevCount !== undefined && prevCount < totalCups && count >= totalCups) {

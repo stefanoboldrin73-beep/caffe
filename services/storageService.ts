@@ -170,3 +170,48 @@ export const getUsersScannedOnDate = (locationId: string, date: string): User[] 
 
     return result;
 };
+
+// --- Data Backup and Restore ---
+
+interface BackupData {
+    barId: string;
+    exportDate: string;
+    users: User[];
+    usedTokens: { [key: string]: number };
+    scanHistory: ScanRecord[];
+}
+
+export const exportDataForBar = (locationId: string): BackupData => {
+    const users = getUsers(locationId);
+    const usedTokens = getUsedTokens(locationId);
+    const scanHistory = getScanHistory(locationId);
+
+    return {
+        barId: locationId,
+        exportDate: new Date().toISOString(),
+        users,
+        usedTokens,
+        scanHistory,
+    };
+};
+
+export const importDataForBar = (locationId: string, data: BackupData): { success: boolean; message: string } => {
+    // Basic validation
+    if (!data || !Array.isArray(data.users) || typeof data.usedTokens !== 'object' || !Array.isArray(data.scanHistory)) {
+        return { success: false, message: "File di backup non valido o corrotto." };
+    }
+    
+    if (data.barId !== locationId) {
+        return { success: false, message: "File di backup per un altro locale." };
+    }
+
+    try {
+        saveUsers(locationId, data.users);
+        saveUsedTokens(locationId, data.usedTokens);
+        saveScanHistory(locationId, data.scanHistory);
+        return { success: true, message: "Dati importati con successo!" };
+    } catch (error) {
+        console.error("Failed to import data:", error);
+        return { success: false, message: "Si è verificato un errore durante l'importazione." };
+    }
+};
