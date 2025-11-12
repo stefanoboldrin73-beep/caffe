@@ -17,7 +17,7 @@
 // NOTA: Questa è una soluzione semplice per un controllo base.
 // Per un prodotto commerciale su larga scala, è raccomandato un backend sicuro.
 
-const ACTIVATION_DATABASE_URL = 'https://gist.githubusercontent.com/NOME_UTENTE/ID_GIST/raw/COMMIT_HASH/bars.json'; // <-- SOSTITUISCI QUESTO URL!
+const ACTIVATION_DATABASE_URL = 'https://api.npoint.io/2d1a3c5a6b7e8f9d0a1b'; // <-- CONFIGURATO!
 
 interface BarActivationInfo {
     status: 'active' | 'suspended';
